@@ -77,6 +77,49 @@ class Generator(object):
         return sets
 
 
+    def generate_none(self):
+        sets = []
+        set = Set()
+        range1 = random.uniform(0, 100)
+        range2 = random.uniform(0, 100)
+        # gengerate borders
+        points = self.generate_points(6, range1, range2)
+        set.init(points)
+        i = 6
+        set_range = set.getRange()
+        while i < self.set_points:
+            point = self.generate_point_in_range(set_range)
+            if not set.belong(point):
+                points.append(point)
+                i += 1
+        set.init(points)
+        sets.append(set)
+        set_id = 1
+        while set_id < self.sets_num:
+            set = Set()
+            range1 = random.uniform(100, 1000)
+            range2 = random.uniform(500, 1000)
+            points = self.generate_points(6, range1, range2)
+            set.init(points)
+            range_my = set.getRange()
+            passed = True
+            # for set_ex in sets:
+            #     passed = passed and set_ex.not_in_range(range_my)
+            if not passed:
+                continue
+            i = 6
+            while i < self.set_points:
+                point = self.generate_point_in_range(range_my)
+                if not set.belong(point):
+                    points.append(point)
+                    i += 1
+            set.init(points)
+            sets.append(set)
+            set_id += 1
+        return sets
+
+
+
 class Point(object):
     def __init__(self):
          self.cords = {}
