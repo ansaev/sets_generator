@@ -8,45 +8,49 @@ class Generator(object):
         self.set_points = 0
         self.point_dimensions = 0
 
-    def init(self, sets_num=5, set_points=50, point_dimensions=5):
+    def init(self, sets_num=5, set_points=5, point_dimensions=2):
         self.sets_num = sets_num
         self.set_points = set_points
         self.point_dimensions = point_dimensions
 
     def generate_point(self, rangeL=0, rangeR=20):
         point = Point()
-        point.init(random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR))
+        cords = []
+        for i in range(self.point_dimensions):
+            cords.append(random.uniform(rangeL, rangeR))
+        point.init_mass(cords)
         return point
 
-    def generate_point_in_range(self, range):
+    def generate_point_in_range(self, range_set):
         point = Point()
-        point.init(random.uniform(range['x']['min'], range['y']['max']), random.uniform(range['x']['min'], range['y']['max']), random.uniform(range['x']['min'], range['y']['max']), random.uniform(range['x']['min'], range['y']['max']), random.uniform(range['x']['min'], range['y']['max']))
+        keys = {0: 'x', 1: 'y', 2: 'z', 3: 'k', 4: 'v'}
+        cords = []
+        for i in range(self.point_dimensions):
+            cords.append(random.uniform(range_set[keys[i]]['min'], range_set[keys[i]]['max']))
+        point.init_mass(cords)
         return point
 
     def generate_points(self, number, rangeL=0, rangeR=20):
         points = []
         for i in range(number):
-            point = Point()
-            point.init(random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR), random.uniform(rangeL, rangeR))
+            point = self.generate_point(rangeL, rangeR)
             points.append(point)
         return points
-    def generate_range(self):
-        range= 0
-        return range
 
-
-    def generate(self):
+    def generate(self, separated=True):
         sets = []
         set = Set()
-        range1 = random.uniform(0, 100)
-        range2 = random.uniform(0, 100)
+        range1 = random.uniform(100, 1000)
+        range2 = random.uniform(500, 1000)
         # gengerate borders
         points = self.generate_points(6, range1, range2)
         set.init(points)
         i = 6
+        # learn the range of borders
         set_range = set.getRange()
         while i < self.set_points:
             point = self.generate_point_in_range(set_range)
+            # accept only points that in the range
             if not set.belong(point):
                 points.append(point)
                 i += 1
@@ -57,15 +61,29 @@ class Generator(object):
             set = Set()
             range1 = random.uniform(100, 1000)
             range2 = random.uniform(500, 1000)
+            # gengerate borders
             points = self.generate_points(6, range1, range2)
             set.init(points)
             range_my = set.getRange()
             passed = True
+            this_passed = False
+
             for set_ex in sets:
-                passed = passed and set_ex.not_in_range(range_my)
+                # we need to generate separated sets or not
+                if separated:
+                    # if yes then we chek if it's range not interact with other sets ranges
+                    this_passed = False
+                    this_passed = set_ex.not_in_range(range_my)
+                    passed = passed and this_passed
+                else:
+                    # if not chek if at least 1 points included in other set
+                    for point_s in set.points:
+                        this_passed = this_passed or set_ex.in_borders(point_s)
+                    passed = this_passed
             if not passed:
                 continue
             i = 6
+            # generate left points in border of 6 accepted points
             while i < self.set_points:
                 point = self.generate_point_in_range(range_my)
                 if not set.belong(point):
@@ -75,60 +93,26 @@ class Generator(object):
             sets.append(set)
             set_id += 1
         return sets
-
-
-    def generate_none(self):
-        sets = []
-        set = Set()
-        range1 = random.uniform(0, 100)
-        range2 = random.uniform(0, 100)
-        # gengerate borders
-        points = self.generate_points(6, range1, range2)
-        set.init(points)
-        i = 6
-        set_range = set.getRange()
-        while i < self.set_points:
-            point = self.generate_point_in_range(set_range)
-            if not set.belong(point):
-                points.append(point)
-                i += 1
-        set.init(points)
-        sets.append(set)
-        set_id = 1
-        while set_id < self.sets_num:
-            set = Set()
-            range1 = random.uniform(100, 1000)
-            range2 = random.uniform(500, 1000)
-            points = self.generate_points(6, range1, range2)
-            set.init(points)
-            range_my = set.getRange()
-            passed = True
-            # for set_ex in sets:
-            #     passed = passed and set_ex.not_in_range(range_my)
-            if not passed:
-                continue
-            i = 6
-            while i < self.set_points:
-                point = self.generate_point_in_range(range_my)
-                if not set.belong(point):
-                    points.append(point)
-                    i += 1
-            set.init(points)
-            sets.append(set)
-            set_id += 1
-        return sets
-
 
 
 class Point(object):
+
     def __init__(self):
          self.cords = {}
+
     def init(self, x=0, y=0, z=0, k=0, v=0):
         self.cords['x'] = x
         self.cords['y'] = y
         self.cords['z'] = z
         self.cords['k'] = k
         self.cords['v'] = v
+
+    def init_mass(self, mas):
+        self.init()
+        if 6 > mas.__len__() > 0:
+            keys = {0: 'x', 1: 'y', 2: 'z', 3: 'k', 4: 'v'}
+            for i, value in enumerate(mas):
+                self.cords[keys[i]] = value
 
     def equal(self, point):
         for cord, value in self.cords.items():
