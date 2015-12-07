@@ -132,14 +132,15 @@ class Set(object):
 
     def __init__(self):
         self.points = []
+        self.separator = 0.0
     def not_in_range(self, range):
         this_range = self.getRange()
-        x_not_in_range = this_range['x']['max'] < range['x']['min'] or this_range['x']['min'] > range['x']['max']
-        y_not_in_range = this_range['y']['max'] < range['y']['min'] or this_range['y']['min'] > range['y']['max']
-        z_not_in_range = this_range['z']['max'] < range['z']['min'] or this_range['z']['min'] > range['z']['max']
-        k_not_in_range = this_range['k']['max'] < range['k']['min'] or this_range['k']['min'] > range['k']['max']
-        v_not_in_range = this_range['v']['max'] < range['v']['min'] or this_range['v']['min'] > range['v']['max']
-        return x_not_in_range or y_not_in_range or z_not_in_range or k_not_in_range or v_not_in_range
+        x_not_in_range = this_range['x']['max'] + self.separator < range['x']['min'] or this_range['x']['min'] > range['x']['max'] + self.separator
+        y_not_in_range = this_range['y']['max']+ self.separator < range['y']['min'] or this_range['y']['min'] > range['y']['max']+ self.separator
+        z_not_in_range = this_range['z']['max']+ self.separator < range['z']['min'] or this_range['z']['min'] > range['z']['max']+ self.separator
+        k_not_in_range = this_range['k']['max']+ self.separator < range['k']['min'] or this_range['k']['min'] > range['k']['max']+ self.separator
+        v_not_in_range = this_range['v']['max']+ self.separator < range['v']['min'] or this_range['v']['min'] > range['v']['max']+ self.separator
+        return x_not_in_range and y_not_in_range and z_not_in_range and k_not_in_range and v_not_in_range
 
     def getRange(self):
         range = {'x':{'min': self.points[0].cords['x'], 'max': self.points[0].cords['x']}, 'y':{'min': self.points[0].cords['y'], 'max': self.points[0].cords['y']},'z':{'min': self.points[0].cords['z'], 'max': self.points[0].cords['z']},'k':{'min': self.points[0].cords['k'], 'max': self.points[0].cords['k']},'v':{'min': self.points[0].cords['v'], 'max': self.points[0].cords['v']}}
