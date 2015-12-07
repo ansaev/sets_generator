@@ -27,13 +27,14 @@ class Graph(object):
 def write_set(sets, data):
     i = 0
     for set in sets:
-        data.append(["set number: "+str(i)])
-        i += 1
+        # data.append(["set number: "+str(i)])
         for point in set.points:
             row =[]
             for cord, value in point.cords.items():
                 row.append(value)
+            row.append(i)
             data.append(row)
+        i += 1
     return data
 
 def write_data_in_exel(data, name):
@@ -46,7 +47,7 @@ def write_data_in_exel(data, name):
     book.save(name+'.xls')
 
 def write_in_xl(sets_separated=None, sets_noneseparated=None, name='Sets default name'):
-    data = [["x", "y", "z", "k", "v"]]
+    data = [["x", "y", "z", "k", "v", "class"]]
     data.append(["separated sets"])
     if sets_separated:
         write_set(sets_separated, data)

@@ -77,9 +77,13 @@ class Generator(object):
                     passed = passed and this_passed
                 else:
                     # if not chek if at least 1 points included in other set
-                    for point_s in set.points:
-                        this_passed = this_passed or set_ex.in_borders(point_s)
-                    passed = this_passed
+                    this_passed = False
+                    this_passed = set_ex.in_range_with_touch(range_my)
+                    passed = passed and this_passed
+
+                    # for point_s in set.points:
+                    #     this_passed = this_passed or set_ex.in_borders(point_s)
+                    # passed = this_passed
             if not passed:
                 continue
             i = 6
@@ -132,15 +136,31 @@ class Set(object):
 
     def __init__(self):
         self.points = []
-        self.separator = 0.0
+        self.separator = 7.0
     def not_in_range(self, range):
         this_range = self.getRange()
-        x_not_in_range = this_range['x']['max'] + self.separator < range['x']['min'] or this_range['x']['min'] > range['x']['max'] + self.separator
-        y_not_in_range = this_range['y']['max']+ self.separator < range['y']['min'] or this_range['y']['min'] > range['y']['max']+ self.separator
-        z_not_in_range = this_range['z']['max']+ self.separator < range['z']['min'] or this_range['z']['min'] > range['z']['max']+ self.separator
-        k_not_in_range = this_range['k']['max']+ self.separator < range['k']['min'] or this_range['k']['min'] > range['k']['max']+ self.separator
-        v_not_in_range = this_range['v']['max']+ self.separator < range['v']['min'] or this_range['v']['min'] > range['v']['max']+ self.separator
+        x_not_in_range = this_range['x']['max'] < range['x']['min'] or this_range['x']['min'] > range['x']['max']
+        y_not_in_range = this_range['y']['max'] < range['y']['min'] or this_range['y']['min'] > range['y']['max']
+        z_not_in_range = this_range['z']['max'] < range['z']['min'] or this_range['z']['min'] > range['z']['max']
+        k_not_in_range = this_range['k']['max'] < range['k']['min'] or this_range['k']['min'] > range['k']['max']
+        v_not_in_range = this_range['v']['max'] < range['v']['min'] or this_range['v']['min'] > range['v']['max']
         return x_not_in_range and y_not_in_range and z_not_in_range and k_not_in_range and v_not_in_range
+
+
+    def in_range_with_touch(self, range):
+        this_range = self.getRange()
+        x_not_in_range = (0 < this_range['x']['max'] - range['x']['min'] < self.separator)or (-self.separator < this_range['x']['min'] - range['x']['max'] < 0)
+        y_not_in_range = (0 < this_range['y']['max'] - range['y']['min'] < self.separator)or (-self.separator < this_range['y']['min'] - range['y']['max'] < 0)
+        z_not_in_range = (0 < this_range['z']['max'] - range['z']['min'] < self.separator)or (-self.separator < this_range['z']['min'] - range['z']['max'] < 0)
+        k_not_in_range = (0 < this_range['k']['max'] - range['k']['min'] < self.separator)or (-self.separator < this_range['k']['min'] - range['k']['max'] < 0)
+        v_not_in_range = (0 < this_range['v']['max'] - range['v']['min'] < self.separator)or (-self.separator < this_range['v']['min'] - range['v']['max'] < 0)
+
+        # y_not_in_range = this_range['y']['max']+ self.separator < range['y']['min'] or this_range['y']['min'] > range['y']['max']+ self.separator
+        # z_not_in_range = this_range['z']['max']+ self.separator < range['z']['min'] or this_range['z']['min'] > range['z']['max']+ self.separator
+        # k_not_in_range = this_range['k']['max']+ self.separator < range['k']['min'] or this_range['k']['min'] > range['k']['max']+ self.separator
+        # v_not_in_range = this_range['v']['max']+ self.separator < range['v']['min'] or this_range['v']['min'] > range['v']['max']+ self.separator
+        return (x_not_in_range or y_not_in_range or z_not_in_range or k_not_in_range or v_not_in_range)
+
 
     def getRange(self):
         range = {'x':{'min': self.points[0].cords['x'], 'max': self.points[0].cords['x']}, 'y':{'min': self.points[0].cords['y'], 'max': self.points[0].cords['y']},'z':{'min': self.points[0].cords['z'], 'max': self.points[0].cords['z']},'k':{'min': self.points[0].cords['k'], 'max': self.points[0].cords['k']},'v':{'min': self.points[0].cords['v'], 'max': self.points[0].cords['v']}}
